@@ -1,4 +1,5 @@
 # Calmly
+[![Build Status](https://travis-ci.org/JosephBuchma/calmly.svg?branch=master)](https://travis-ci.org/JosephBuchma/calmly)
 
 Package calmly is example of golang package that should not exist.
 
