@@ -61,7 +61,7 @@ func TestCalmly(t *testing.T) {
 	Try(func() {
 		panic(TestPanic1{"PANIC"})
 	}).Catch(TestPanic2{}, func(e E) {
-		t.Error("This should be skipped")
+		t.Error("This should not be catched")
 	}).Catch(TestPanic{}, func(e E) {
 		t.Error("This should not be catched")
 	}).Catch(TestPanic1{}, func(e E) {
@@ -71,12 +71,16 @@ func TestCalmly(t *testing.T) {
 		catched = true
 	}).Finally(nil)
 
+	if !catched {
+		t.Error("Not Catched!")
+	}
+
 	finalized = false
 
 	Try(func() {
 		panic(TestPanic1{"PANIC"})
 	}).Catch(TestPanic2{}, func(e E) {
-		t.Error("This should be skipped")
+		t.Error("This should not be catched")
 	}).Catch(TestPanic{}, func(e E) {
 		t.Error("This should not be catched")
 	}).CatchAny(func(e E) {
@@ -104,7 +108,7 @@ func TestMissingHandler(t *testing.T) {
 	Try(func() {
 		panic(TestPanic1{"PANIC"})
 	}).Catch(TestPanic2{}, func(e E) {
-		t.Error("This should be skipped")
+		t.Error("This should not be catched")
 	}).Catch(TestPanic{}, func(e E) {
 		t.Error("This should not be catched")
 	}).Finally(func() {
