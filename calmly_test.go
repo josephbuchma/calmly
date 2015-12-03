@@ -18,7 +18,7 @@ func TestCalmly(t *testing.T) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			t.Error("Should catch panic")
+			t.Error("Should not catch panic")
 		}
 	}()
 
@@ -79,6 +79,10 @@ func TestCalmly(t *testing.T) {
 		t.Error("This should be skipped")
 	}).Catch(TestPanic{}, func(e E) {
 		t.Error("This should not be catched")
+	}).CatchAny(func(e E) {
+		if e.(TestPanic1).e != "PANIC" {
+			t.Error("Should receive error")
+		}
 	}).Finally(func() {
 		finalized = true
 	})
@@ -86,4 +90,29 @@ func TestCalmly(t *testing.T) {
 	if !finalized {
 		t.Error("Should be finalized anyway")
 	}
+}
+
+func TestMissingHandler(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Should recover panic")
+		}
+	}()
+
+	finalized := false
+
+	Try(func() {
+		panic(TestPanic1{"PANIC"})
+	}).Catch(TestPanic2{}, func(e E) {
+		t.Error("This should be skipped")
+	}).Catch(TestPanic{}, func(e E) {
+		t.Error("This should not be catched")
+	}).Finally(func() {
+		finalized = true
+	})
+
+	if !finalized {
+		t.Error("Should be finalized anyway")
+	}
+
 }

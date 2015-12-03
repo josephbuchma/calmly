@@ -8,23 +8,29 @@ import (
 
 type E interface{}
 
-type exception struct {
+type exceptionHandler struct {
 	e interface{}
 	f func(E)
 }
 
 type calm struct {
-	try     func()
-	catch   []exception
-	finally func()
+	try      func()
+	catch    []exceptionHandler
+	catchAny func(E)
+	finally  func()
 }
 
 func Try(f func()) *calm {
-	return &calm{f, make([]exception, 1), nil}
+	return &calm{f, make([]exceptionHandler, 1), nil, nil}
 }
 
 func (c *calm) Catch(except interface{}, f func(e E)) *calm {
-	c.catch = append(c.catch, exception{except, f})
+	c.catch = append(c.catch, exceptionHandler{except, f})
+	return c
+}
+
+func (c *calm) CatchAny(f func(e E)) *calm {
+	c.catchAny = f
 	return c
 }
 
@@ -42,9 +48,14 @@ func (c *calm) run() {
 			for _, catch := range c.catch {
 				if reflect.TypeOf(catch.e) == reflect.TypeOf(r) {
 					catch.f(r)
-					break
+					return
 				}
 			}
+			if c.catchAny != nil {
+				c.catchAny(r)
+				return
+			}
+			panic(r)
 		}
 	}()
 	c.try()
