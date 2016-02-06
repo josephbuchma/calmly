@@ -9,7 +9,7 @@ import (
 type E interface{}
 
 type exceptionHandler struct {
-	e interface{}
+	e E
 	f func(E)
 }
 
@@ -21,10 +21,10 @@ type calm struct {
 }
 
 func Try(f func()) *calm {
-	return &calm{f, make([]exceptionHandler, 1), nil, nil}
+	return &calm{f, make([]exceptionHandler, 0, 4), nil, nil}
 }
 
-func (c *calm) Catch(except interface{}, f func(e E)) *calm {
+func (c *calm) Catch(except E, f func(e E)) *calm {
 	c.catch = append(c.catch, exceptionHandler{except, f})
 	return c
 }
